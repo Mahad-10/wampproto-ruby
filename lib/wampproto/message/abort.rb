@@ -2,16 +2,67 @@
 
 module Wampproto
   module Message
-    # abort message
-    class Abort < Base
+    # interface for abort fields
+    module IAbortFields
+      def details
+        raise NotImplementedError
+      end
+
+      def reason
+        raise NotImplementedError
+      end
+
+      def args
+        raise NotImplementedError
+      end
+
+      def kwargs
+        raise NotImplementedError
+      end
+    end
+
+    # abort fields
+    class AbortFields
+      include IAbortFields
       attr_reader :details, :reason, :args, :kwargs
 
       def initialize(details, reason, *args, **kwargs)
         super()
-        @details = Validate.hash!("Details", details)
-        @reason = Validate.string!("Reason", reason)
-        @args   = Validate.array!("Arguments", args)
-        @kwargs = Validate.hash!("Keyword Arguments", kwargs)
+        @details = details
+        @reason = reason
+        @args = args
+        @kwargs = kwargs
+      end
+    end
+
+    # abort message
+    class Abort < Base
+      include IAbortFields
+      attr_reader :details, :reason, :args, :kwargs
+
+      TEXT = "ABORT"
+      VALIDATION_SPEC = Message::ValidationSpec.new(
+        3,
+        5,
+        TEXT,
+        {
+          1 => Message::Util.method(:validate_details),
+          2 => Message::Util.method(:validate_reason),
+          3 => Message::Util.method(:validate_args),
+          4 => Message::Util.method(:validate_kwargs)
+        }
+      )
+
+      def initialize(details, reason, *args, **kwargs)
+        super()
+        @details = details
+        @reason = reason
+        @args = args
+        @kwargs = kwargs
+      end
+
+      def self.with_fields(fields)
+        new(fields.details, fields.reason, fields.args, fields.kwargs)
       end
 
       def marshal
@@ -22,10 +73,9 @@ module Wampproto
       end
 
       def self.parse(wamp_message)
-        _type, details, reason, args, kwargs = wamp_message
-        args   ||= []
-        kwargs ||= {}
-        new(details, reason, *args, **kwargs)
+        # @type-ignore
+        fields = Util.validate_message(wamp_message, Type::ABORT, VALIDATION_SPEC)
+        Abort.with_fields(fields)
       end
     end
   end

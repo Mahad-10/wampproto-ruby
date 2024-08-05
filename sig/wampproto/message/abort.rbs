@@ -1,7 +1,18 @@
 module Wampproto
   module Message
-    # abort message
-    class Abort < Base
+    module IAbortFields
+      def details: () -> Hash[Symbol, untyped]
+
+      def reason: () -> String
+
+      def args: () -> (Array[untyped] | nil)
+
+      def kwargs: () -> (Hash[Symbol, untyped] | nil)
+    end
+
+    class AbortFields
+      include IAbortFields
+
       @details: Hash[Symbol, untyped]
 
       @reason: String
@@ -20,7 +31,41 @@ module Wampproto
 
       attr_reader kwargs: Hash[Symbol, untyped]
 
+      def initialize: (Hash[Symbol, untyped] details, String reason, *Array[untyped] | nil args, **Hash[Symbol, untyped] | nil kwargs) -> void
+
+    end
+
+    # abort message
+    class Abort < Base
+      TEXT: String
+
+      VALIDATION_SPEC: ValidationSpec
+
+      @details: Hash[Symbol, untyped]
+
+      @reason: String
+
+      @args: Array[untyped]
+
+      @kwargs: Hash[Symbol, untyped]
+
+      @marshal: Array[untyped]
+
+      @fields: IAbortFields
+
+      attr_reader details: Hash[Symbol, untyped]
+
+      attr_reader reason: String
+
+      attr_reader args: Array[untyped]
+
+      attr_reader kwargs: Hash[Symbol, untyped]
+
+      attr_reader fields: IAbortFields
+
       def initialize: (Hash[Symbol, untyped] details, String reason, *Array[untyped] args, **Hash[Symbol, untyped] kwargs) -> void
+
+      def self.with_fields: (IAbortFields fields) -> Abort
 
       def marshal: () -> Array[untyped]
 
@@ -28,4 +73,3 @@ module Wampproto
     end
   end
 end
-
