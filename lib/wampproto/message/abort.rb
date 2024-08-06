@@ -26,7 +26,7 @@ module Wampproto
       include IAbortFields
       attr_reader :details, :reason, :args, :kwargs
 
-      def initialize(details, reason, *args, **kwargs)
+      def initialize(details, reason, args: nil, kwargs: nil)
         super()
         @details = details
         @reason = reason
@@ -53,7 +53,7 @@ module Wampproto
         }
       )
 
-      def initialize(details, reason, *args, **kwargs)
+      def initialize(details, reason, args: nil, kwargs: nil)
         super()
         @details = details
         @reason = reason
@@ -62,7 +62,7 @@ module Wampproto
       end
 
       def self.with_fields(fields)
-        new(fields.details, fields.reason, fields.args, fields.kwargs)
+        new(fields.details, fields.reason, args: fields.args, kwargs: fields.kwargs)
       end
 
       def marshal
