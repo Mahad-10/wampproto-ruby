@@ -66,14 +66,17 @@ module Wampproto
       end
 
       def marshal
-        @marshal = [Type::ABORT, details, reason]
-        @marshal << args if kwargs.any? || args.any?
-        @marshal << kwargs if kwargs.any?
+        @marshal = [Type::ABORT, @details, @reason]
+
+        @marshal << @args unless @args.nil?
+        unless @kwargs.nil?
+          @marshal << [] if @args.nil?
+          @marshal << @kwargs if @kwargs.any?
+        end
         @marshal
       end
 
       def self.parse(wamp_message)
-        # @type-ignore
         fields = Util.validate_message(wamp_message, Type::ABORT, VALIDATION_SPEC)
         Abort.with_fields(fields)
       end
