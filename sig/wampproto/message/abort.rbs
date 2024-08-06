@@ -37,6 +37,8 @@ module Wampproto
 
     # abort message
     class Abort < Base
+      include IAbortFields
+
       TEXT: String
 
       VALIDATION_SPEC: ValidationSpec
@@ -60,8 +62,6 @@ module Wampproto
       attr_reader args: Array[untyped]
 
       attr_reader kwargs: Hash[Symbol, untyped]
-
-      attr_reader fields: IAbortFields
 
       def initialize: (Hash[Symbol, untyped] details, String reason, *Array[untyped] args, **Hash[Symbol, untyped] kwargs) -> void
 
