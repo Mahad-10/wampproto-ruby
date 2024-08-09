@@ -1,6 +1,6 @@
 module Wampproto
   module Message
-    module IAbortFields
+    class IAbortFields
       def details: () -> Hash[Symbol, untyped]
 
       def reason: () -> String
@@ -10,8 +10,7 @@ module Wampproto
       def kwargs: () -> (Hash[Symbol, untyped] | nil)
     end
 
-    class AbortFields
-      include IAbortFields
+    class AbortFields < IAbortFields
 
       @details: Hash[Symbol, untyped]
 
@@ -31,13 +30,12 @@ module Wampproto
 
       attr_reader kwargs: Hash[Symbol, untyped]
 
-      def initialize: (Hash[Symbol, untyped] details, String reason, Array[untyped]? args, Hash[Symbol, untyped]? kwargs) -> void
+      def initialize: (Hash[Symbol, untyped] details, String reason, *Array[untyped] args, **Hash[Symbol, untyped] kwargs) -> void
 
     end
 
     # abort message
     class Abort < Base
-      include IAbortFields
 
       TEXT: String
 
@@ -63,7 +61,7 @@ module Wampproto
 
       attr_reader kwargs: Hash[Symbol, untyped]
 
-      def initialize: (Hash[Symbol, untyped] details, String reason, Array[untyped] args, Hash[Symbol, untyped] kwargs) -> void
+      def initialize: (Hash[Symbol, untyped] details, String reason, *Array[untyped] args, **Hash[Symbol, untyped] kwargs) -> void
 
       def self.with_fields: (IAbortFields fields) -> Abort
 
