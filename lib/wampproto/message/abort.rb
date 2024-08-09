@@ -3,7 +3,7 @@
 module Wampproto
   module Message
     # interface for abort fields
-    module IAbortFields
+    class IAbortFields
       def details
         raise NotImplementedError
       end
@@ -22,11 +22,10 @@ module Wampproto
     end
 
     # abort fields
-    class AbortFields
-      include IAbortFields
+    class AbortFields < IAbortFields
       attr_reader :details, :reason, :args, :kwargs
 
-      def initialize(details, reason, args: nil, kwargs: nil)
+      def initialize(details, reason, *args, **kwargs)
         super()
         @details = details
         @reason = reason
@@ -37,7 +36,6 @@ module Wampproto
 
     # abort message
     class Abort < Base
-      include IAbortFields
       attr_reader :details, :reason, :args, :kwargs
 
       TEXT = "ABORT"
@@ -53,7 +51,7 @@ module Wampproto
         }
       )
 
-      def initialize(details, reason, args: nil, kwargs: nil)
+      def initialize(details, reason, *args, **kwargs)
         super()
         @details = details
         @reason = reason
@@ -62,18 +60,13 @@ module Wampproto
       end
 
       def self.with_fields(fields)
-        new(fields.details, fields.reason, args: fields.args, kwargs: fields.kwargs)
+        new(fields.details, fields.reason, *fields.args, **fields.kwargs)
       end
 
       def marshal
-        @marshal = [Type::ABORT, @details, @reason]
-
-        @marshal << @args unless @args.nil?
-        unless @kwargs.nil?
-          @marshal << [] if @args.nil?
-          @marshal << @kwargs if @kwargs.any?
-        end
-        @marshal
+        @marshal = [Type::ABORT, details, reason]
+        @marshal << args if kwargs.any? || args.any?
+        @marshal << kwargs if kwargs.any?
       end
 
       def self.parse(wamp_message)
